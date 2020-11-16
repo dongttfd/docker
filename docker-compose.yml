@@ -1,0 +1,43 @@
+version: "3"
+
+services:
+  # The web
+  web:
+    container_name: web
+    build:
+      context: "./docker"
+      dockerfile: web.dockerfile
+    working_dir: /var/www/html/teawork
+    volumes:
+      - ./api:/var/www/html/teawork/
+      - ./wordpress:/var/www/html/wordpress/
+    ports:
+      - 80:80
+    # restart: always
+    networks:
+      teawork:
+        ipv4_address: "10.3.0.16"
+  db:
+    container_name: db
+    image: mariadb:10.4
+    restart: always
+    environment:
+      MYSQL_USER: dongtt
+      MYSQL_PASSWORD: dongtt
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/sql:/docker-entrypoint-initdb.d
+      - teaworkdb:/var/lib/mysql
+    networks:
+      teawork:
+        ipv4_address: "10.3.0.14"
+networks:
+  teawork:
+    driver: "bridge"
+    ipam:
+      config:
+        - subnet: 10.3.0.0/16
+volumes:
+  teaworkdb:
